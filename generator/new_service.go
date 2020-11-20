@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 
 	"github.com/dave/jennifer/jen"
@@ -78,7 +79,12 @@ func (g *NewService) genModule() error {
 		moduleName = strings.Join(moduleNameSlice, "/")
 	}
 	cmdStr := "cd " + prjName + " && go mod init " + moduleName
-	cmd := exec.Command("sh", "-c", cmdStr)
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/C", cmdStr)
+	} else {
+		cmd = exec.Command("sh", "-c", cmdStr)
+	}
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
